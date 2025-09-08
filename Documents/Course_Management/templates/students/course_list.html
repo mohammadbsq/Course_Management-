@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Available Courses - Course Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1><i class="fas fa-book me-2"></i>Available Courses</h1>
+        <p class="text-muted">Explore and enroll in our exciting courses</p>
+    </div>
+    {% if user.is_authenticated %}
+        <div class="stats-card">
+            <div class="stats-number">{{ courses.count }}</div>
+            <div>Available Courses</div>
+        </div>
+    {% endif %}
+</div>
+
+{% if courses %}
+    <div class="course-grid">
+        {% for course in courses %}
+            <div class="course-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h4 class="course-title">{{ course.title }}</h4>
+                    {% if course.id in user_enrollments %}
+                        <span class="badge bg-success">
+                            <i class="fas fa-check me-1"></i>Enrolled
+                        </span>
+                    {% else %}
+                        <span class="badge bg-{{ course.difficulty|default:'secondary' }}">
+                            {{ course.get_difficulty_display }}
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <div class="course-instructor">
+                    <i class="fas fa-chalkboard-teacher me-1"></i>
+                    Instructor: {{ course.instructor }}
+                </div>
+                
+                <p class="text-muted mb-3">{{ course.description|truncatewords:20 }}</p>
+                
+                <div class="course-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-calendar me-1"></i>
+                        {{ course.start_date|date:"M d" }} - {{ course.end_date|date:"M d" }}
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-users me-1"></i>
+                        {{ course.get_enrolled_count }}/{{ course.max_students }}
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-star me-1"></i>
+                        {{ course.credits }} Credits
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2 mt-3">
+                    <a href="{% url 'course_detail' course.id %}" class="btn btn-primary flex-fill">
+                        <i class="fas fa-eye me-1"></i>View Details
+                    </a>
+                    {% if user.is_authenticated and course.id not in user_enrollments %}
+                        <a href="{% url 'enroll_course' course.id %}" class="btn btn-success">
+                            <i class="fas fa-plus me-1"></i>Enroll
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-book-open fa-4x text-muted mb-3"></i>
+        <h3 class="text-muted">No courses available</h3>
+        <p class="text-muted">Check back later for new courses!</p>
+    </div>
+{% endif %}
+{% endblock %}

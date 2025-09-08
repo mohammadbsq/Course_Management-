@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ course.title }} - Course Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h1>{{ course.title }}</h1>
+                    {% if is_enrolled %}
+                        <span class="badge bg-success fs-6">
+                            <i class="fas fa-check me-1"></i>Enrolled
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <div class="course-instructor mb-3">
+                    <i class="fas fa-chalkboard-teacher me-2"></i>
+                    <strong>Instructor:</strong> {{ course.instructor }}
+                </div>
+                
+                <div class="course-meta mb-4">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar me-1"></i>
+                                <strong>Duration:</strong><br>
+                                {{ course.start_date|date:"M d, Y" }} - {{ course.end_date|date:"M d, Y" }}
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="meta-item">
+                                <i class="fas fa-users me-1"></i>
+                                <strong>Enrollment:</strong><br>
+                                {{ course.get_enrolled_count }}/{{ course.max_students }} students
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="meta-item">
+                                <i class="fas fa-star me-1"></i>
+                                <strong>Credits:</strong><br>
+                                {{ course.credits }} credits
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="meta-item">
+                                <i class="fas fa-signal me-1"></i>
+                                <strong>Level:</strong><br>
+                                {{ course.get_difficulty_display }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h4>Course Description</h4>
+                    <p class="text-muted">{{ course.description }}</p>
+                </div>
+                
+                {% if not is_enrolled and user.is_authenticated %}
+                    <div class="mb-4">
+                        <a href="{% url 'enroll_course' course.id %}" class="btn btn-success btn-lg">
+                            <i class="fas fa-plus me-2"></i>Enroll in This Course
+                        </a>
+                    </div>
+                {% endif %}
+                
+                {% if is_enrolled %}
+                    <div class="mb-4">
+                        <h4>Course Materials</h4>
+                        <div class="mb-3">
+                            <a href="{% url 'upload_file' course.id %}" class="btn btn-primary">
+                                <i class="fas fa-upload me-2"></i>Upload File
+                            </a>
+                        </div>
+                        
+                        {% if files %}
+                            <div class="files-list">
+                                {% for file in files %}
+                                    <div class="file-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1">{{ file.title }}</h6>
+                                                <small class="text-muted">
+                                                    Uploaded by {{ file.uploaded_by.username }} on {{ file.timestamp|date:"M d, Y H:i" }}
+                                                </small>
+                                                {% if file.description %}
+                                                    <p class="mb-0 mt-1 text-muted">{{ file.description }}</p>
+                                                {% endif %}
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <a href="{% url 'download_file' file.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-download me-1"></i>Download
+                                                </a>
+                                                {% if file.uploaded_by == user or user.is_staff %}
+                                                    <a href="{% url 'delete_file' file.id %}" class="btn btn-sm btn-outline-danger">
+                                                        <i class="fas fa-trash me-1"></i>Delete
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No files uploaded yet</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Quick Actions</h5>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'course_list' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Courses
+                    </a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'my_courses' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-user-graduate me-2"></i>My Courses
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

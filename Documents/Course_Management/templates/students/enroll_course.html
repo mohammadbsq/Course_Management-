@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Enroll in {{ course.title }} - Course Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-plus-circle fa-3x text-success mb-3"></i>
+                    <h2 class="card-title">Enroll in Course</h2>
+                    <p class="text-muted">Confirm your enrollment in this course</p>
+                </div>
+                
+                <div class="course-card mb-4">
+                    <h4 class="course-title">{{ course.title }}</h4>
+                    <div class="course-instructor">
+                        <i class="fas fa-chalkboard-teacher me-1"></i>
+                        Instructor: {{ course.instructor }}
+                    </div>
+                    <p class="text-muted mb-3">{{ course.description|truncatewords:30 }}</p>
+                    
+                    <div class="course-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-calendar me-1"></i>
+                            {{ course.start_date|date:"M d, Y" }} - {{ course.end_date|date:"M d, Y" }}
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-users me-1"></i>
+                            {{ course.get_enrolled_count }}/{{ course.max_students }} students
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-star me-1"></i>
+                            {{ course.credits }} credits
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            {{ form.errors }}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-flex gap-3 justify-content-center">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check me-2"></i>Confirm Enrollment
+                        </button>
+                        <a href="{% url 'course_detail' course.id %}" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
